@@ -798,13 +798,20 @@ export default function FurrytailFinalForm() {
                       )}
                     </div>
 
-                    <input
-                      type="date"
-                      required
-                      value={pet.dob}
-                      className="p-2 border rounded-lg"
-                      onChange={(e) => handlePetChange(idx, 'dob', e.target.value)}
-                    />
+                    {/* Tanggal lahir: pakai label eksplisit di atas karena iOS Safari
+                        tidak menampilkan placeholder pada input type="date" */}
+                    <div>
+                      <label className="text-xs font-semibold text-[#5C3A21] block mb-1">
+                        {t.petDob}
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={pet.dob}
+                        className="p-2 border rounded-lg w-full text-sm text-[#333]"
+                        onChange={(e) => handlePetChange(idx, 'dob', e.target.value)}
+                      />
+                    </div>
 
                     <input
                       type="number"
