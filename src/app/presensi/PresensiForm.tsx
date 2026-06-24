@@ -36,7 +36,11 @@ interface SessionData {
 // ===== Helper: format datetime UTC → WITA =====
 function formatWITA(datetimeUtc: string | null): string {
   if (!datetimeUtc) return '—';
-  const date = new Date(datetimeUtc);
+  // Odoo mengembalikan datetime format "YYYY-MM-DD HH:MM:SS" (spasi sebagai separator, UTC).
+  // Browser kadang menginterpretasikan format spasi sebagai local time, bukan UTC.
+  // Ganti spasi jadi 'T' dan tambahkan 'Z' supaya selalu diparse sebagai UTC.
+  const normalized = datetimeUtc.replace(' ', 'T') + (datetimeUtc.includes('Z') ? '' : 'Z');
+  const date = new Date(normalized);
   return date.toLocaleTimeString('id-ID', {
     timeZone: 'Asia/Makassar',
     hour: '2-digit',
@@ -46,6 +50,7 @@ function formatWITA(datetimeUtc: string | null): string {
 
 // ===== Helper: warna & label status =====
 function statusStyle(status: string): { bg: string; text: string; label: string } {
+  // Nilai status ini harus PERSIS sama dengan selection options di Odoo x_presensi_staff
   switch (status) {
     case 'Tepat Waktu':
       return { bg: 'bg-green-100', text: 'text-green-800', label: '✅ Tepat Waktu' };
@@ -57,13 +62,15 @@ function statusStyle(status: string): { bg: string; text: string; label: string 
       return { bg: 'bg-red-100', text: 'text-red-800', label: '❌ Tidak Hadir' };
     case 'Libur':
       return { bg: 'bg-purple-100', text: 'text-purple-800', label: '🌴 Libur' };
-    default:
+    case 'Belum Check In': // nilai exact dari Odoo (spasi, bukan dash)
       return { bg: 'bg-gray-100', text: 'text-gray-700', label: '🕐 Belum Check-in' };
+    default:
+      return { bg: 'bg-gray-100', text: 'text-gray-700', label: `🕐 ${status}` };
   }
 }
 
 // ===== Komponen utama =====
-export default function AbsensiPage() {
+export default function PresensiForm() {
   // State login
   const [email, setEmail] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
@@ -242,10 +249,10 @@ export default function AbsensiPage() {
 
   // ===== Render: Halaman Presensi =====
   const { staffName, presensi } = session;
-  const status = presensi?.status ?? 'Belum Check-in';
+  const status = presensi?.status ?? 'Belum Check In';
   const style = statusStyle(status);
 
-  const bisaCheckIn = status === 'Belum Check-in';
+  const bisaCheckIn = status === 'Belum Check In'; // nilai exact Odoo (spasi, bukan dash)
   const bisaCheckOut =
     status === 'Tepat Waktu' || status === 'Telat' || status === 'Telat - Approved';
   const sudahCheckOut = !!presensi?.jamCheckOut;
@@ -273,7 +280,7 @@ export default function AbsensiPage() {
             className="text-lg font-semibold text-[#5C3A21] uppercase tracking-wide text-center"
             style={{ fontFamily: 'var(--font-fredoka), sans-serif' }}
           >
-            Absensi Staff
+            Presensi Staff
           </h1>
         </div>
 

@@ -6,7 +6,7 @@ const ODOO_DB = process.env.ODOO_DB;
 // Koordinat pusat Furrytail (Jl. Raya Uluwatu, Jimbaran, Bali)
 const FURRYTAIL_LAT = -8.7972729;
 const FURRYTAIL_LNG = 115.1618883;
-const RADIUS_METER = 50;
+const RADIUS_METER = 100;
 
 // ===== Helper: hitung jarak dua koordinat (Haversine formula) =====
 function hitungJarak(lat1: number, lng1: number, lat2: number, lng2: number): number {
